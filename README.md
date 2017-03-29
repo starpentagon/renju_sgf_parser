@@ -40,10 +40,10 @@ Run:
 
 ## Supported information elements
 
-The parse supports following SGF properties:
+The parser supports following SGF properties:
 * DT: game date
 * EV: event name
 * PB, PW: black/white player name
 * BR, WR: black/white player rank
-* RU, GN: Opening rule(SGF files in ORC Game Center does not provide the RU property, so the program parses GN(Game Name) infomation)
+* RU, GN: Opening rule(SGF files in ORC Game Center don't provide the RU property, so the program parses GN(Game Name) infomation)
 * RE: Game end status and result
