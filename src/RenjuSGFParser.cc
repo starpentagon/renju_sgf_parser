@@ -1,36 +1,60 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
+#include <array>
 
 #include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "RenjuSGFParser.h"
 
 using namespace std;
 using namespace boost;
 
+void ParseSGFFile(const string &file_path)
+{
+  // SGFファイルを読み込む
+  ifstream sgf_file(file_path);
+
+  if(sgf_file.fail()){
+    cerr << "Failed to open the file: " << file_path << endl;
+    return;
+  }
+
+  istreambuf_iterator<char> start(sgf_file);
+  istreambuf_iterator<char> last;
+  string sgf_file_data(start, last);
+
+  // SGFデータ(FF[4]->B[..]->かっこが閉じられるまで)を抽出する
+  regex sgf_data_expr("FF\\[4\\](.*?B\\[..\\].*?)\\)");
+  sregex_iterator it(sgf_file_data.begin(), sgf_file_data.end(), sgf_data_expr);
+  sregex_iterator it_end;
+
+  while(it != it_end){
+    const string sgf_data = it->str(1);
+    GameInfo game_info;
+    
+    try{
+      game_info.Parse(sgf_data);
+    }catch(logic_error &ex){
+      cerr << file_path << "," << ex.what() << "," << sgf_data << endl;
+    }
+
+    cout << game_info.str() << endl;
+
+    ++it;
+  }
+}
+
 GameInfo::GameInfo()
 : game_end_status_(kUnknownEndStatus), game_result_(kUnknownResult)
 {
 }
 
-bool GameInfo::Parse(const string &file_name)
+void GameInfo::Parse(const string &sgf_data)
 {
-  // SGFファイルを読み込む
-  ifstream sgf_file(file_name);
-
-  if(sgf_file.fail()){
-    cerr << "Failed to open the file: " << file_name << endl;
-    return false;
-  }
-
-  istreambuf_iterator<char> start(sgf_file);
-  istreambuf_iterator<char> last;
-  string sgf_data(start, last);
-
   try{
     game_date_ = ParseGameDate(sgf_data);
+    event_name_ = ParseEventName(sgf_data);
     black_player_name_ = ParseBlackPlayerName(sgf_data);
     black_player_rank_ = ParseBlackPlayerRank(sgf_data); 
     white_player_name_ = ParseWhitePlayerName(sgf_data);
@@ -42,11 +66,8 @@ bool GameInfo::Parse(const string &file_name)
     diagram_ = ParseDiagram(sgf_data);
     alternative_moves_ = ParseAlternativeMoves(sgf_data);
   }catch(logic_error &ex){
-    cerr << ex.what() << endl;
-    return false;
+    throw ex;
   }
-
-  return true;
 }
 
 string GameInfo::ParseGameDate(const std::string &sgf_data) const
@@ -86,8 +107,7 @@ string GameInfo::ParseBlackPlayerRank(const std::string &sgf_data) const
   if(it != it_end){
     return it->str(1);
   }else{
-    logic_error error("Black Player Rank(BR) is not found.");
-    throw error;
+    return "";
   }
 }
 
@@ -114,19 +134,18 @@ string GameInfo::ParseWhitePlayerRank(const std::string &sgf_data) const
   if(it != it_end){
     return it->str(1);
   }else{
-    logic_error error("White Player Rank(WR) is not found.");
-    throw error;
+    return "";
   }
 }
 
 string GameInfo::ParseGameRule(const std::string &sgf_data) const
 {
-  regex game_rule_expr("GN\\[.*?((RIF)|(Sakata)|(Yamaguchi)|(Tarannikov)|(Jonsson)|(Unknown)).*?\\]");
+  regex game_rule_expr("(GN|RU)\\[.*?((RIF)|(Sakata)|(Yamaguchi)|(Tarannikov)|(Jonsson)|(Unknown)).*?\\]");
   sregex_iterator it(sgf_data.begin(), sgf_data.end(), game_rule_expr);
   sregex_iterator it_end;
 
   if(it != it_end){
-    return it->str(1);
+    return it->str(2);
   }else{
     logic_error error("Game Rule(GN) is not found.");
     throw error;
@@ -135,19 +154,24 @@ string GameInfo::ParseGameRule(const std::string &sgf_data) const
 
 GameEndStatus GameInfo::ParseGameEndStatus(const std::string &sgf_data) const
 {
-  regex result_expr("RE\\[(B|W)\\+(Resign|Time|Draw)\\]");
-  sregex_iterator it(sgf_data.begin(), sgf_data.end(), result_expr);
+  regex draw_expr("RE\\[B?W?\\+?Draw\\]");
+  sregex_iterator it_draw(sgf_data.begin(), sgf_data.end(), draw_expr);
   sregex_iterator it_end;
+
+  if(it_draw != it_end){
+    return kAgreedDraw;
+  }
+
+  regex result_expr("RE\\[(B|W)\\+(Resign|R|Time)\\]");
+  sregex_iterator it(sgf_data.begin(), sgf_data.end(), result_expr);
 
   if(it != it_end){
     const string end_status = it->str(2);
 
-    if(end_status == "Resign"){
+    if(end_status == "Resign" || end_status == "R"){
       return kResign;
-    }else if(end_status == "Time"){
-      return kTimeup;
     }else{
-      return kAgreedDraw;
+      return kTimeup;
     }
   }else{
     logic_error error("Game result(RE) is not found.");
@@ -157,20 +181,16 @@ GameEndStatus GameInfo::ParseGameEndStatus(const std::string &sgf_data) const
 
 GameResult GameInfo::ParseGameResult(const std::string &sgf_data) const
 {
-  regex result_expr("RE\\[(B|W)\\+(Resign|Time|Draw)\\]");
+  if(ParseGameEndStatus(sgf_data) == kAgreedDraw){
+    return kDraw;
+  }
+
+  regex result_expr("RE\\[(B|W)\\+(Resign|R|Time)\\]");
   sregex_iterator it(sgf_data.begin(), sgf_data.end(), result_expr);
   sregex_iterator it_end;
 
   if(it != it_end){
     const string win_player = it->str(1);
-    const string end_status = it->str(2);
-
-    cerr << end_status << endl;
-    const bool is_draw = end_status == "Draw";
-    
-    if(is_draw){
-      return kDraw;
-    }
 
     if(win_player == "B"){
       return kBlackWin;
@@ -185,22 +205,28 @@ GameResult GameInfo::ParseGameResult(const std::string &sgf_data) const
 
 string GameInfo::ParseDiagram(const std::string &sgf_data) const
 {
-  regex black_move_expr(";B\\[(..)\\]");
-  regex white_move_expr(";W\\[(..)\\]");
+  regex move_expr(";(B|W)\\[([a-z][a-z])\\]");
 
-  sregex_iterator black_move_it(sgf_data.begin(), sgf_data.end(), black_move_expr);
-  sregex_iterator white_move_it(sgf_data.begin(), sgf_data.end(), white_move_expr);
+  sregex_iterator move_it(sgf_data.begin(), sgf_data.end(), move_expr);
   sregex_iterator it_end;
   
   set<string> move_set;
   bool black_turn = true;
   string diagram;
 
-  while(black_move_it != it_end || white_move_it != it_end)
+  while(move_it != it_end)
   {
-    const string stone = black_turn ? black_move_it->str(1) : white_move_it->str(1);
+    const string turn = move_it->str(1);
+    const string stone = move_it->str(2);
     
-    // timeup
+    // 黒番、白番が交互に出現しているかチェックする
+    bool is_turn_consistent = (black_turn && turn == "B") || (!black_turn && turn == "W");
+
+    if(!is_turn_consistent){
+      throw logic_error("Turn is not consistent.");
+    }
+
+    // timeup or pass
     if(stone == "tt"){
       break;
     }
@@ -225,12 +251,7 @@ string GameInfo::ParseDiagram(const std::string &sgf_data) const
 
     diagram += stone;
 
-    if(black_turn){
-      ++black_move_it;
-    }else{
-      ++white_move_it;
-    }
-
+    ++move_it;
     black_turn = !black_turn;
   }
 
@@ -239,14 +260,74 @@ string GameInfo::ParseDiagram(const std::string &sgf_data) const
 
 string GameInfo::ParseAlternativeMoves(const std::string &sgf_data) const
 {
-  regex alternative_expr("5A\\[(.*?)\\]");
+  regex alternative_expr("(5A|FA)\\[(.*?)\\]");
   sregex_iterator it(sgf_data.begin(), sgf_data.end(), alternative_expr);
+  sregex_iterator it_end;
+
+  if(it != it_end){
+    return it->str(2);
+  }else{
+    return "";
+  }
+}
+
+string GameInfo::ParseEventName(const std::string &sgf_data) const
+{
+  regex event_expr("EV\\[(.*?)\\]");
+  sregex_iterator it(sgf_data.begin(), sgf_data.end(), event_expr);
   sregex_iterator it_end;
 
   if(it != it_end){
     return it->str(1);
   }else{
-    logic_error error("Alternative move(5A) is not found.");
-    throw error;
+    return "";
   }
+}
+
+string GameInfo::GetCSVHeader() const
+{
+  string header = "";
+
+  header += "game_date,";
+  header += "event,";
+
+  header += "black_player,";
+  header += "black_rank,";
+  header += "white_player,";
+  header += "white_rank,";
+
+  header += "opening_rule,";
+
+  header += "game_end_status,";
+  header += "game_result,";
+
+  header += "diagram,";
+  header += "alternative_moves";
+
+  return header;
+}
+
+string GameInfo::str() const
+{
+  string info_text;
+  std::array<string, 4> game_end_status_str{{"Resign", "Timeup", "AgreedDraw", "Unknown"}};
+  std::array<string, 4> game_result_str{{"BlackWin", "WhiteWin", "Draw", "Unknown"}};
+
+  info_text += game_date_ + ",";
+  info_text += event_name_ + ",";
+  
+  info_text += black_player_name_ + ",";
+  info_text += black_player_rank_ + ",";
+  info_text += white_player_name_ + ",";
+  info_text += white_player_rank_ + ",";
+
+  info_text += game_rule_ + ",";
+
+  info_text += game_end_status_str[game_end_status_] + ",";
+  info_text += game_result_str[game_result_] + ",";
+
+  info_text += diagram_ + ",";
+  info_text += alternative_moves_;
+
+  return info_text;
 }

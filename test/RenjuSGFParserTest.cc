@@ -115,6 +115,14 @@ public:
     EXPECT_EQ(alternative, expect_alternative);
   }
 
+  void ParseEventNameTest()
+  {
+    GameInfo game_info;
+
+    const string game_rule = game_info.ParseEventName(sgf_data_);
+    EXPECT_EQ("none", game_rule);
+  }
+
 private:
   string sgf_data_;
 };
@@ -167,4 +175,9 @@ TEST_F(GameInfoTest, ParseDiagramTest)
 TEST_F(GameInfoTest, ParseAlternativeMovesTest)
 {
   ParseAlternativeMovesTest();
+}
+
+TEST_F(GameInfoTest, ParseEventNameTest)
+{
+  ParseEventNameTest();
 }

@@ -13,13 +13,4 @@ build_result=$?
 
 popd
 
-if [ ${build_result} -eq 0 ]; then
-  if [ -d bin ]; then
-    rm -rf bin
-  fi
-
-  mkdir bin
-  cp ./build/ren_viewer bin
-fi
-
 
