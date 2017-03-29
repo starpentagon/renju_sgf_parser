@@ -14,7 +14,7 @@ public:
 "(;"
 "GM[5]FF[4]"
 "SW[NO]"
-"5A[gg]"
+"5A[gg][hh]"
 "GN[PlayerA-PlayerB(B) : RIF rule]"
 "EV[none]"
 "RE[W+Resign]"
@@ -110,7 +110,7 @@ public:
     GameInfo game_info;
 
     const string alternative = game_info.ParseAlternativeMoves(sgf_data_);
-    const string expect_alternative = "gg";
+    const string expect_alternative = "gg; hh";
 
     EXPECT_EQ(alternative, expect_alternative);
   }

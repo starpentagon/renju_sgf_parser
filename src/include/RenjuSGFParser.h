@@ -39,11 +39,11 @@ public:
   void Parse(const std::string &sgf_data);
 
   //! @brief CSV形式のヘッダを出力する
-  //! @note 対局日,対局者名,ランク,開局ルール,終局状態,対局結果,5手目提示珠,棋譜の順で出力する
+  //! @note 対局日,大会名,対局者名,ランク,開局ルール,終局状態,対局結果,5手目提示珠,棋譜の順で出力する
   std::string GetCSVHeader() const;
 
   //! @brief CSV形式のデータを出力する
-  //! @note 対局日,対局者名,ランク,開局ルール,終局状態,対局結果,5手目提示珠,棋譜の順で出力する
+  //! @note 対局日,大会名,対局者名,ランク,開局ルール,終局状態,対局結果,5手目提示珠,棋譜の順で出力する
   std::string str() const;
 
 private:

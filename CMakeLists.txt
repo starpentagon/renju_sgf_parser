@@ -5,7 +5,7 @@ set(project_name renju_sgf_parser)
 project(${project_name} CXX)
 
 # Build Type(Release or Debug)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 # ccache
 find_program(CCACHE_FOUND ccache)
@@ -32,5 +32,4 @@ add_executable(
 
 # ライブラリ
 target_link_libraries(${project_name} boost_program_options)
-target_link_libraries(${project_name} boost_regex)
 
