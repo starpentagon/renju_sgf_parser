@@ -145,8 +145,7 @@ string GameInfo::ParseGameRule(const std::string &sgf_data) const
   if(it != it_end){
     return it->str(2);
   }else{
-    logic_error error("Game Rule(GN) is not found.");
-    throw error;
+    return "Unknown";
   }
 }
 
