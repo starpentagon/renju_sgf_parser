@@ -80,6 +80,9 @@ private:
   //! @brief 大会名を取得する
   std::string ParseEventName(const std::string &sgf_data) const;
 
+  //! @brief CSVフィールドにカンマが入らないようにカンマをスペースに置換する
+  std::string ReplaceComma(const std::string &str) const;
+
   std::string game_date_;     //!< 対局日
 
   std::string black_player_name_;   //!< 黒番の対局者名

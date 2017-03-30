@@ -309,27 +309,35 @@ string GameInfo::GetCSVHeader() const
   return header;
 }
 
+string GameInfo::ReplaceComma(const std::string &str) const
+{
+  string replaced_str = str;
+  replace(replaced_str.begin(), replaced_str.end(), ',', ' ');
+
+  return replaced_str;
+}
+
 string GameInfo::str() const
 {
   string info_text;
   std::array<string, 4> game_end_status_str{{"Resign", "Timeup", "AgreedDraw", "Unknown"}};
   std::array<string, 4> game_result_str{{"BlackWin", "WhiteWin", "Draw", "Unknown"}};
 
-  info_text += game_date_ + ",";
-  info_text += event_name_ + ",";
+  info_text += ReplaceComma(game_date_) + ",";
+  info_text += ReplaceComma(event_name_) + ",";
   
-  info_text += black_player_name_ + ",";
-  info_text += black_player_rank_ + ",";
-  info_text += white_player_name_ + ",";
-  info_text += white_player_rank_ + ",";
+  info_text += ReplaceComma(black_player_name_) + ",";
+  info_text += ReplaceComma(black_player_rank_) + ",";
+  info_text += ReplaceComma(white_player_name_) + ",";
+  info_text += ReplaceComma(white_player_rank_) + ",";
 
-  info_text += game_rule_ + ",";
+  info_text += ReplaceComma(game_rule_) + ",";
 
-  info_text += game_end_status_str[game_end_status_] + ",";
-  info_text += game_result_str[game_result_] + ",";
+  info_text += ReplaceComma(game_end_status_str[game_end_status_]) + ",";
+  info_text += ReplaceComma(game_result_str[game_result_]) + ",";
 
-  info_text += diagram_ + ",";
-  info_text += alternative_moves_;
+  info_text += ReplaceComma(diagram_) + ",";
+  info_text += ReplaceComma(alternative_moves_);
 
   return info_text;
 }
