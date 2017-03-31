@@ -72,7 +72,7 @@ private:
   GameResult ParseGameResult(const std::string &sgf_data) const;
 
   //! @brief 棋譜([a-o]形式)を取得する
-  std::string ParseDiagram(const std::string &sgf_data) const;
+  std::string ParseGameRecord(const std::string &sgf_data) const;
 
   //! @brief 5手目の取り除かれた提示珠を取得する
   std::string ParseAlternativeMoves(const std::string &sgf_data) const;
@@ -93,7 +93,7 @@ private:
   std::string game_rule_;         //!< 対局ルール(RIF, Sakata, Yamaguchi, Tarannikov, Jonsson, Unknown)
   GameEndStatus game_end_status_; //!< 終局状態
   GameResult game_result_;        //!< 対局結果
-  std::string diagram_;           //!< 棋譜（[a-o]形式）
+  std::string game_record_;           //!< 棋譜（[a-o]形式）
   std::string alternative_moves_; //!< 5手目の提示（取り除かれた珠）(option)
 
   std::string event_name_;    //!< 大会名(option)

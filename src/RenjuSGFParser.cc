@@ -61,7 +61,7 @@ void GameInfo::Parse(const string &sgf_data)
     game_rule_ = ParseGameRule(sgf_data);
     game_end_status_ = ParseGameEndStatus(sgf_data);
     game_result_ = ParseGameResult(sgf_data);
-    diagram_ = ParseDiagram(sgf_data);
+    game_record_ = ParseGameRecord(sgf_data);
     alternative_moves_ = ParseAlternativeMoves(sgf_data);
   }catch(logic_error &ex){
     throw ex;
@@ -200,7 +200,7 @@ GameResult GameInfo::ParseGameResult(const std::string &sgf_data) const
   }
 }
 
-string GameInfo::ParseDiagram(const std::string &sgf_data) const
+string GameInfo::ParseGameRecord(const std::string &sgf_data) const
 {
   static regex move_expr(";(B|W)\\[([a-z][a-z])\\]");
 
@@ -209,7 +209,7 @@ string GameInfo::ParseDiagram(const std::string &sgf_data) const
   
   set<string> move_set;
   bool black_turn = true;
-  string diagram;
+  string record;
 
   while(move_it != it_end)
   {
@@ -246,13 +246,13 @@ string GameInfo::ParseDiagram(const std::string &sgf_data) const
       throw error;
     }
 
-    diagram += stone;
+    record += stone;
 
     ++move_it;
     black_turn = !black_turn;
   }
 
-  return diagram;
+  return record;
 }
 
 string GameInfo::ParseAlternativeMoves(const std::string &sgf_data) const
@@ -303,7 +303,7 @@ string GameInfo::GetCSVHeader() const
   header += "game_end_status,";
   header += "game_result,";
 
-  header += "diagram,";
+  header += "game_record,";
   header += "alternative_moves";
 
   return header;
@@ -336,7 +336,7 @@ string GameInfo::str() const
   info_text += ReplaceComma(game_end_status_str[game_end_status_]) + ",";
   info_text += ReplaceComma(game_result_str[game_result_]) + ",";
 
-  info_text += ReplaceComma(diagram_) + ",";
+  info_text += ReplaceComma(game_record_) + ",";
   info_text += ReplaceComma(alternative_moves_);
 
   return info_text;

@@ -12,8 +12,10 @@ The program input and parse the SGF file, then output the following information 
 * Opening rule(RIF, Yamaguchi, etc)
 * Game end status(Resign, Timeup, AgreedDraw)
 * Game result(BlackWin, WhiteWin, Draw)
+* Game record(black and white moves in [a-o] format)
+* Alternative moves
 
-I test the SGF files:
+I tested the SGF files:
 - published in ORC Game Center
 - exported by Renjubase
 
@@ -66,5 +68,5 @@ The parser supports following SGF properties:
 
 ## Developer's blog
 
-Please visit the developer's blog(Japanese) if you are interested in Renju programming.
-http://quinstella.net/dev/
+Please visit the developer's blog(http://quinstella.net/dev/) if you are interested in Renju programming.
+

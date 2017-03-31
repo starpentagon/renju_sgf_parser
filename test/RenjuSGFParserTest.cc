@@ -95,14 +95,14 @@ public:
     EXPECT_EQ(kWhiteWin, game_result);
   }
 
-  void ParseDiagramTest()
+  void ParseGameRecordTest()
   {
     GameInfo game_info;
 
-    const string diagram = game_info.ParseDiagram(sgf_data_);
-    const string expect_diagram = "hhhgjfigiekgjgjhkigg";
+    const string record = game_info.ParseGameRecord(sgf_data_);
+    const string expect_record = "hhhgjfigiekgjgjhkigg";
 
-    EXPECT_EQ(expect_diagram, diagram);
+    EXPECT_EQ(expect_record, record);
   }
 
   void ParseAlternativeMovesTest()
@@ -167,9 +167,9 @@ TEST_F(GameInfoTest, ParseGameResultTest)
   ParseGameResultTest();
 }
 
-TEST_F(GameInfoTest, ParseDiagramTest)
+TEST_F(GameInfoTest, ParseGameRecordTest)
 {
-  ParseDiagramTest();
+  ParseGameRecordTest();
 }
 
 TEST_F(GameInfoTest, ParseAlternativeMovesTest)
