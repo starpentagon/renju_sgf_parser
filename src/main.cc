@@ -20,8 +20,7 @@ int main(int argc, char* argv[])
   store(parse_command_line(argc, argv, option), arg_map);
 
   if(arg_map.count("header")){
-    GameInfo game_info;
-    cout << game_info.GetCSVHeader() << endl;
+    cout << GetCSVHeader() << endl;
 
     return 0;
   }

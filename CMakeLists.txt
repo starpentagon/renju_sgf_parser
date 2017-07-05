@@ -19,6 +19,7 @@ add_definitions("-Wall -std=c++14")
 
 # インクルードパス
 include_directories(${CMAKE_SOURCE_DIR}/src/include)
+include_directories(${CMAKE_SOURCE_DIR}/realcore/src/include)
 
 # ライブラリパス
 link_directories($ENV{BOOST_DIR}/lib)
@@ -26,6 +27,9 @@ link_directories($ENV{BOOST_DIR}/lib)
 # ソースファイル
 add_executable(
     ${project_name}
+    ../realcore/src/Move.cc
+    ../realcore/src/MoveList.cc
+    ../realcore/src/SGFParser.cc
     ../src/RenjuSGFParser.cc
     ../src/main.cc
 )
