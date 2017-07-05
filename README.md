@@ -64,7 +64,7 @@ The parser supports following SGF properties:
 * RU, GN: Opening rule(SGF files in ORC Game Center don't provide the RU property, so the program parses GN(Game Name) infomation)
 * RE: Game end status and result
 * B, W: black/white player's move
-   * A move at 'tt'(out of the renju board) is sometimes recorded in ORC Game Center. I assume the move might be pass(draw agreement) or timeout, so the parser regards the game as finished when the move at 'tt' is appeared.
+   * A move at 'tt'(out of the renju board) is sometimes recorded in ORC Game Center. The move means pass and usually implies draw agreement. So, the parser regards the game as finished when the move at 'tt' is appeared.
 
 ## Developer's blog
 
