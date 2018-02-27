@@ -27,9 +27,9 @@ link_directories($ENV{BOOST_DIR}/lib)
 # ソースファイル
 add_executable(
     ${project_name}
-    ../realcore/src/Move.cc
-    ../realcore/src/MoveList.cc
-    ../realcore/src/SGFParser.cc
+    ./realcore/src/Move.cc
+    ./realcore/src/MoveList.cc
+    ./realcore/src/SGFParser.cc
     ../src/RenjuSGFParser.cc
     ../src/main.cc
 )
